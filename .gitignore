@@ -1,0 +1,9 @@
+#IDE
+.idea
+
+neardev
+target
+
+# OS X
+.DS_Store
+

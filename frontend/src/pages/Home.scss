@@ -1,0 +1,15 @@
+.card-picker {
+  display: inline-block;
+  cursor: pointer;
+  max-width: 400px;
+  max-height: 400px;
+  &:hover {
+    box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.8);
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: default;
+    box-shadow: none;
+  }
+}
