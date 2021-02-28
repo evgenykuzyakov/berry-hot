@@ -1,4 +1,4 @@
-mod cards;
+mod card;
 mod rating;
 mod request;
 
@@ -15,13 +15,13 @@ near_sdk::setup_alloc!();
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
-    pub leaders: TreeMap<(Rating, BlockHeight), ()>,
+    pub leaders: TreeMap<(u128, BlockHeight), ()>,
 
     pub accounts: LookupMap<AccountId, ReviewRequest>,
 
-    pub cards: UnorderedMap<BlockHeight, Rating>,
+    pub rating: UnorderedMap<BlockHeight, u128>,
 
-    pub total_rating: Rating,
+    pub num_votes: u128,
 }
 
 #[near_bindgen]
@@ -32,8 +32,8 @@ impl Contract {
         Self {
             leaders: TreeMap::new(b"t".to_vec()),
             accounts: LookupMap::new(b"a".to_vec()),
-            cards: UnorderedMap::new(b"c".to_vec()),
-            total_rating: Default::default(),
+            rating: UnorderedMap::new(b"r".to_vec()),
+            num_votes: Default::default(),
         }
     }
 }

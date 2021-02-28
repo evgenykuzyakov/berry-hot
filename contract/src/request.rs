@@ -47,18 +47,24 @@ impl Contract {
     }
 
     fn random_request(&self) -> ReviewRequest {
-        let seed = env::random_seed();
-        ReviewRequest {
-            left: self.random_card(u128::from_le_bytes((&seed[..16]).try_into().unwrap())),
-            right: self.random_card(u128::from_le_bytes((&seed[16..]).try_into().unwrap())),
+        let mut seed = env::random_seed();
+        loop {
+            let request = ReviewRequest {
+                left: self.random_card(u128::from_le_bytes((&seed[..16]).try_into().unwrap())),
+                right: self.random_card(u128::from_le_bytes((&seed[16..]).try_into().unwrap())),
+            };
+            if request.left != request.right {
+                break request;
+            }
+            seed = env::sha256(&seed);
         }
     }
 
     fn random_card(&self, r: u128) -> BlockHeight {
-        if (r & (1u128 << 64)) > 0 && self.cards.len() > MIN_CARDS_FOR_FIGHTS {
-            self.cards
+        if (r & (1u128 << 64)) > 0 && self.rating.len() > MIN_CARDS_FOR_FIGHTS {
+            self.rating
                 .keys_as_vector()
-                .get((r % (self.cards.len() as u128)) as u64)
+                .get((r % (self.rating.len() as u128)) as u64)
                 .unwrap()
         } else {
             // let num_blocks = env::block_index() - FIRST_BERRY_BLOCK;
@@ -70,17 +76,12 @@ impl Contract {
     fn resolve_request(&mut self, old_request: &ReviewRequest, response: ReviewResponse) {
         match response {
             ReviewResponse::SelectedLeft => {
-                self.add_rating(old_request.left, Rating { wins: 1, views: 1 });
-                self.add_rating(old_request.right, Rating { wins: 0, views: 1 });
+                self.update_rating(old_request.left, old_request.right);
             }
             ReviewResponse::SelectedRight => {
-                self.add_rating(old_request.left, Rating { wins: 0, views: 1 });
-                self.add_rating(old_request.right, Rating { wins: 1, views: 1 });
+                self.update_rating(old_request.right, old_request.left);
             }
-            ReviewResponse::Skipped => {
-                self.add_rating(old_request.left, Rating { wins: 0, views: 1 });
-                self.add_rating(old_request.right, Rating { wins: 0, views: 1 });
-            }
+            ReviewResponse::Skipped => (),
         }
     }
 }

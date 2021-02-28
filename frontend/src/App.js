@@ -15,7 +15,7 @@ const TestNearConfig = {
   networkId: 'testnet',
   nodeUrl: 'https://rpc.testnet.near.org',
   archivalNodeUrl: 'https://rpc.testnet.internal.near.org',
-  contractName: 'dev-1614470408772-5575011',
+  contractName: 'dev-1614554816701-8115451',
   walletUrl: 'https://wallet.testnet.near.org',
 };
 

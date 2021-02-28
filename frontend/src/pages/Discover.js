@@ -28,11 +28,19 @@ function DiscoverPage(props) {
   }, [props.connected, fetchTop])
 
   const cards = feed.map(([rating, cardId]) => {
+    const r = parseFloat(rating) / 1e24;
     const key = `${gkey}-${cardId}`;
-    return <div className="d-inline-block m-2 card-preview" key={key}>
-      <WaybackCard className="rounded img-fluid" cardId={cardId} cardReady={() => false}/>
-      <div>{rating.wins}/{rating.views}</div>
-    </div>
+    return (
+      <div class="card card-preview m-2">
+        <WaybackCard className="card-img-top" cardId={cardId} cardReady={() => false}/>
+        <div class="card-body">
+          <h5 class="card-title">#{cardId}</h5>
+          <p class="card-text">
+            {`${r.toFixed(2)} NEAR`}
+          </p>
+        </div>
+      </div>
+    );
   })
 
   return (

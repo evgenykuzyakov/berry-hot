@@ -3,26 +3,30 @@ use crate::*;
 #[near_bindgen]
 impl Contract {
     pub fn get_num_cards(&self) -> u64 {
-        self.cards.len()
+        self.rating.len()
     }
 
     pub fn get_top(
         &self,
-        from: Option<(Rating, BlockHeight)>,
+        from_key: Option<(Rating, BlockHeight)>,
         limit: u64,
     ) -> Vec<(Rating, BlockHeight)> {
-        if let Some(from) = from {
+        if let Some((r, b)) = from_key {
             self.leaders
-                .iter_rev_from(from)
+                .iter_rev_from((r.into(), b))
                 .take(limit as usize)
-                .map(|(k, _)| k)
+                .map(|((r, b), _)| (r.into(), b))
                 .collect()
         } else {
             self.leaders
                 .iter_rev()
                 .take(limit as usize)
-                .map(|(k, _)| k)
+                .map(|((r, b), _)| (r.into(), b))
                 .collect()
         }
+    }
+
+    pub fn get_rating(&self, card_id: BlockHeight) -> Rating {
+        self.rating.get(&card_id).unwrap_or_default().into()
     }
 }

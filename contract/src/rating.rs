@@ -1,57 +1,29 @@
 use crate::*;
-use std::cmp::Ordering;
-use std::ops::AddAssign;
+use near_sdk::json_types::U128;
 
-#[derive(Default, Eq, Copy, Clone, BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Rating {
-    pub wins: u64,
-    pub views: u64,
-}
+pub type Rating = U128;
 
-impl AddAssign for Rating {
-    fn add_assign(&mut self, other: Self) {
-        self.wins += other.wins;
-        self.views += other.views;
-    }
-}
-
-const MIN_VIEWS_FOR_RATIO: u64 = 3;
-
-impl PartialEq for Rating {
-    fn eq(&self, other: &Self) -> bool {
-        self.cmp(other) == Ordering::Equal
-    }
-}
-
-impl Ord for Rating {
-    fn cmp(&self, other: &Self) -> Ordering {
-        if self.views >= MIN_VIEWS_FOR_RATIO && other.views >= MIN_VIEWS_FOR_RATIO {
-            (self.wins as u128 * other.views as u128)
-                .cmp(&(self.views as u128 * other.wins as u128))
-        } else {
-            self.wins.cmp(&other.wins)
-        }
-    }
-}
-
-impl PartialOrd for Rating {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
+const WIN_BONUS: u128 = 1_000000_000000_000000_000000;
 
 impl Contract {
-    pub(crate) fn add_rating(&mut self, block_height: BlockHeight, rating: Rating) {
-        let mut card_rating = self.cards.remove(&block_height).unwrap_or_default();
-        self.leaders.remove(&(card_rating, block_height));
-        card_rating += rating;
-        if card_rating.wins == 0 {
-            // Do not store no-win cards
-            return;
+    pub(crate) fn update_rating(&mut self, winner_id: BlockHeight, loser_id: BlockHeight) {
+        let winner_rating = self.rating.remove(&winner_id).unwrap_or_default();
+        if winner_rating > 0 {
+            self.leaders.remove(&(winner_rating, winner_id));
         }
-        self.total_rating += card_rating;
-        self.cards.insert(&block_height, &card_rating);
-        self.leaders.insert(&(card_rating, block_height), &());
+        let loser_rating = self.rating.remove(&loser_id).unwrap_or_default();
+        if loser_rating > 0 {
+            self.leaders.remove(&(loser_rating, loser_id));
+        }
+        let bet = loser_rating / 10;
+        let winner_rating = (winner_rating + bet + WIN_BONUS).into();
+        let loser_rating = (loser_rating - bet).into();
+        self.num_votes += 1;
+        self.rating.insert(&winner_id, &winner_rating);
+        self.leaders.insert(&(winner_rating, winner_id), &());
+        if loser_rating > 0 {
+            self.rating.insert(&loser_id, &loser_rating);
+            self.leaders.insert(&(loser_rating, loser_id), &());
+        }
     }
 }
