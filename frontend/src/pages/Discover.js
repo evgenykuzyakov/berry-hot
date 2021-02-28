@@ -12,9 +12,9 @@ function DiscoverPage(props) {
 
   const fetchTop = useCallback(async () => {
     // const numCards = await props._near.contract.get_num_cards();
-    return (await props._near.contract.get_top({
+    return await props._near.contract.get_top({
       limit: FetchLimit,
-    })).map(([rating, cardId]) => cardId);
+    })
   }, [props._near])
 
   useEffect(() => {
@@ -27,10 +27,11 @@ function DiscoverPage(props) {
     }
   }, [props.connected, fetchTop])
 
-  const cards = feed.map(cardId => {
+  const cards = feed.map(([rating, cardId]) => {
     const key = `${gkey}-${cardId}`;
     return <div className="d-inline-block m-2 card-preview" key={key}>
       <WaybackCard className="rounded img-fluid" cardId={cardId} cardReady={() => false}/>
+      <div>{rating.wins}/{rating.views}</div>
     </div>
   })
 

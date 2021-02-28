@@ -2,9 +2,7 @@ use crate::*;
 use std::cmp::Ordering;
 use std::ops::AddAssign;
 
-#[derive(
-    Default, PartialEq, Eq, Copy, Clone, BorshDeserialize, BorshSerialize, Serialize, Deserialize,
-)]
+#[derive(Default, Eq, Copy, Clone, BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Rating {
     pub wins: u64,
@@ -19,6 +17,12 @@ impl AddAssign for Rating {
 }
 
 const MIN_VIEWS_FOR_RATIO: u64 = 3;
+
+impl PartialEq for Rating {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == Ordering::Equal
+    }
+}
 
 impl Ord for Rating {
     fn cmp(&self, other: &Self) -> Ordering {
