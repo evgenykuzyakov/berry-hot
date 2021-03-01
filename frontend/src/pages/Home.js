@@ -1,6 +1,6 @@
 import "./Home.scss";
 import React, {useState} from 'react';
-import WaybackCard from "../components/WaybackCard";
+import { WaybackCard, preloadCard } from "../components/WaybackCard";
 
 
 function HomePage(props) {
@@ -8,7 +8,15 @@ function HomePage(props) {
   const [leftReady, setLeftReady] = useState(false);
   const [rightReady, setRightReady] = useState(false);
 
-  const vote = async (e, response) => {
+  const voteRequest = props.requests ? props.requests[0] : null;
+  if (props.requests) {
+    props.requests.slice(1).forEach((nextRequest) => {
+      preloadCard(nextRequest.left);
+      preloadCard(nextRequest.right);
+    });
+  }
+
+  const vote = async (e, voteRequest, response) => {
     if (voting) {
       return;
     }
@@ -20,41 +28,40 @@ function HomePage(props) {
     }
     e.preventDefault();
     setVoting(true);
-    const request = await props._near.contract.vote({
-      request: props.request,
+    props.popRequest();
+    const newRequest = await props._near.contract.vote({
+      request: voteRequest,
       response,
     }, "100000000000000");
-    props.updateState({
-      request
-    }, () => setVoting(false));
+    props.addRequest(newRequest, () => setVoting(false));
   }
 
   return (
     <div>
       <div className="container">
-        {props.request ? (
+        {voteRequest ? (
           <div>
             <div className="row justify-content-md-center mb-3">
               <div className="col col-sm-6">
-                <div className={`card-picker${(voting || !leftReady) ? " disabled": ""}`} onClick={(e) => vote(e, "SelectedLeft")}>
-                  <WaybackCard className="img-fluid" cardId={props.request.left} cardReady={setLeftReady}/>
+                <div className={`card-picker${(voting || !leftReady) ? " disabled": ""}`} onClick={(e) => vote(e, voteRequest, "SelectedLeft")}>
+                  <WaybackCard className="img-fluid" cardId={voteRequest.left} cardReady={setLeftReady}/>
                 </div>
               </div>
               <div className="col col-sm-6">
-                <div className={`card-picker${(voting || !rightReady) ? " disabled": ""}`} onClick={(e) => vote(e, "SelectedRight")}>
-                  <WaybackCard className="img-fluid" cardId={props.request.right} cardReady={setRightReady}/>
+                <div className={`card-picker${(voting || !rightReady) ? " disabled": ""}`} onClick={(e) => vote(e, voteRequest,"SelectedRight")}>
+                  <WaybackCard className="img-fluid" cardId={voteRequest.right} cardReady={setRightReady}/>
                 </div>
               </div>
             </div>
             <div className="row justify-content-md-center">
               {voting ? (
-                <button disabled={true} className="btn btn-secondary">
+                <button disabled={true} className="btn btn-lg btn-secondary">
                   <span className="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                   <span className="visually-hidden">Loading...</span>
                     {' '}Voting
                 </button>
               ) : (
-                <button className="btn btn-danger" onClick={(e) => vote(e, "Skipped")}>Skip both cards</button>
+                <button className="btn btn-lg btn-danger" onClick={(e) => vote(e, voteRequest,"Skipped")}>Skip both cards</button>
               )}
             </div>
           </div>

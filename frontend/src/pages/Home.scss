@@ -1,5 +1,5 @@
 .card-picker {
-  display: inline-block;
+  margin: auto;
   cursor: pointer;
   max-width: 400px;
   max-height: 400px;
@@ -8,7 +8,6 @@
   }
 
   &.disabled {
-    opacity: 0.6;
     cursor: default;
     box-shadow: none;
   }

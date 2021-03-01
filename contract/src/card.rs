@@ -1,4 +1,7 @@
 use crate::*;
+use near_sdk::BlockHeight;
+
+pub type CardId = BlockHeight;
 
 #[near_bindgen]
 impl Contract {
@@ -6,11 +9,7 @@ impl Contract {
         self.rating.len()
     }
 
-    pub fn get_top(
-        &self,
-        from_key: Option<(Rating, BlockHeight)>,
-        limit: u64,
-    ) -> Vec<(Rating, BlockHeight)> {
+    pub fn get_top(&self, from_key: Option<(Rating, CardId)>, limit: u64) -> Vec<(Rating, CardId)> {
         if let Some((r, b)) = from_key {
             self.leaders
                 .iter_rev_from((r.into(), b))
@@ -26,7 +25,7 @@ impl Contract {
         }
     }
 
-    pub fn get_rating(&self, card_id: BlockHeight) -> Rating {
+    pub fn get_rating(&self, card_id: CardId) -> Rating {
         self.rating.get(&card_id).unwrap_or_default().into()
     }
 }

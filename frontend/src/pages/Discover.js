@@ -1,7 +1,7 @@
 import "./Discover.scss";
 import React, {useCallback, useEffect, useState} from 'react';
 import uuid from "react-uuid";
-import WaybackCard from "../components/WaybackCard";
+import { WaybackCard } from "../components/WaybackCard";
 
 const FetchLimit = 100;
 
@@ -31,7 +31,7 @@ function DiscoverPage(props) {
     const r = parseFloat(rating) / 1e24;
     const key = `${gkey}-${cardId}`;
     return (
-      <div class="card card-preview m-2">
+      <div class="card card-preview m-2" key={key}>
         <WaybackCard className="card-img-top" cardId={cardId} cardReady={() => false}/>
         <div class="card-body">
           <h5 class="card-title">#{cardId}</h5>

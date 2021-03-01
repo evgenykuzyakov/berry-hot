@@ -15,7 +15,7 @@ const TestNearConfig = {
   networkId: 'testnet',
   nodeUrl: 'https://rpc.testnet.near.org',
   archivalNodeUrl: 'https://rpc.testnet.internal.near.org',
-  contractName: 'dev-1614554816701-8115451',
+  contractName: 'dev-1614562672208-5026434',
   walletUrl: 'https://wallet.testnet.near.org',
 };
 
@@ -23,7 +23,7 @@ const MainNearConfig = {
   networkId: 'testnet',
   nodeUrl: 'https://rpc.testnet.near.org',
   archivalNodeUrl: 'https://rpc.testnet.internal.near.org',
-  contractName: 'dev-1614470408772-5575011',
+  contractName: 'dev-1614562672208-5026434',
   walletUrl: 'https://wallet.testnet.near.org',
 };
 
@@ -35,6 +35,19 @@ const MainNearConfig = {
 // };
 const NearConfig = IsMainnet ? MainNearConfig : TestNearConfig;
 
+const fromNear = (s) => parseFloat(s) / 1e24;
+
+const mapAccount = (a) => {
+  return {
+    requests: a.requests,
+    numCards: a.num_cards,
+    purchaseVolume: fromNear(a.purchase_volume),
+    numPurchases: a.num_purchases,
+    saleProfit: fromNear(a.sale_profit),
+    numSales: a.num_sales,
+    numVotes: a.num_votes,
+  };
+}
 
 class App extends React.Component {
   constructor(props) {
@@ -45,7 +58,8 @@ class App extends React.Component {
     this.state = {
       connected: false,
       isNavCollapsed: true,
-      request: null,
+      account: null,
+      requests: null,
     };
 
     this._initNear().then(() => {
@@ -71,17 +85,23 @@ class App extends React.Component {
     const block = await this._near.account.connection.provider.block({ finality: 'final' });
     this._near.lastBlockHeight = block.header.height;
     this._near.contract = new nearAPI.Contract(this._near.account, NearConfig.contractName, {
-      viewMethods: ['get_request', 'get_num_cards', 'get_top'],
-      changeMethods: ['new_request', 'vote'],
+      viewMethods: ['get_account', 'get_accounts', 'get_num_cards', 'get_top', 'get_rating', 'get_trade_data', 'get_card_info'],
+      changeMethods: ['register_account', 'vote', 'buy_card'],
     });
 
+    this._near.getAccount = async (accountId) => {
+      const a = await this._near.contract.get_account({account_id: accountId});
+      return a ? mapAccount(a) : null;
+    };
+
     if (this._near.accountId) {
-      let request = await this._near.contract.get_request({account_id: this._near.accountId});
-      if (request === null) {
-        request = await this._near.contract.new_request();
+      let account = await this._near.getAccount(this._near.accountId);
+      if (account === null) {
+        account = mapAccount(await this._near.contract.register_account());
       }
       this.setState({
-        request,
+        account,
+        requests: account.requests,
       });
     }
   }
@@ -106,10 +126,27 @@ class App extends React.Component {
     })
   }
 
+  popRequest(c) {
+    const requests = this.state.requests.slice(1);
+    this.setState({
+      requests,
+    }, c);
+  }
+
+  addRequest(r, c) {
+    const requests = this.state.requests.slice(0);
+    requests.push(r);
+    this.setState({
+      requests,
+    }, c);
+  }
+
   render() {
     const passProps = {
       _near: this._near,
       updateState: (s, c) => this.setState(s, c),
+      popRequest: (c) => this.popRequest(c),
+      addRequest: (r, c) => this.addRequest(r, c),
       ...this.state
     };
     const header = !this.state.connected ? (

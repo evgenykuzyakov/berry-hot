@@ -6,7 +6,7 @@ pub type Rating = U128;
 const WIN_BONUS: u128 = 1_000000_000000_000000_000000;
 
 impl Contract {
-    pub(crate) fn update_rating(&mut self, winner_id: BlockHeight, loser_id: BlockHeight) {
+    pub(crate) fn update_rating(&mut self, winner_id: CardId, loser_id: CardId) {
         let winner_rating = self.rating.remove(&winner_id).unwrap_or_default();
         if winner_rating > 0 {
             self.leaders.remove(&(winner_rating, winner_id));
@@ -25,5 +25,13 @@ impl Contract {
             self.rating.insert(&loser_id, &loser_rating);
             self.leaders.insert(&(loser_rating, loser_id), &());
         }
+    }
+
+    pub(crate) fn set_rating(&mut self, card_id: CardId, old_rating: u128, new_rating: u128) {
+        self.leaders.remove(&(old_rating, card_id));
+        if old_rating != self.rating.insert(&card_id, &new_rating).unwrap() {
+            env::panic(b"Internal rating mismatch");
+        }
+        self.leaders.insert(&(old_rating, card_id), &());
     }
 }

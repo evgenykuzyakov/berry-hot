@@ -1,6 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import BrokenCard from "../images/broken-card.png"
 
+const loadedCards = {};
+
+function preloadCard(cardId) {
+  if (cardId in loadedCards) {
+    return;
+  }
+  loadedCards[cardId] = true;
+  let a = new Image();
+  a.src = `https://wayback.berryclub.io/img/${cardId}`;
+}
+
 function WaybackCard(props) {
   const [loading, setLoading] = useState(true);
   const [badCard, setBadCard] = useState(false);
@@ -37,4 +48,4 @@ function WaybackCard(props) {
   );
 }
 
-export default WaybackCard;
+export { preloadCard, WaybackCard };
