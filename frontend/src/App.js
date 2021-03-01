@@ -10,6 +10,8 @@ import DiscoverPage from "./pages/Discover";
 import HomePage from "./pages/Home";
 import {HashRouter as Router, Link, Route, Switch} from 'react-router-dom'
 import {fromNear} from "./components/BuyButton";
+import ls from "local-storage";
+import CardPage from "./pages/Card";
 
 const IsMainnet = window.location.hostname === "berry.cards";
 const TestNearConfig = {
@@ -54,11 +56,15 @@ class App extends React.Component {
 
     this._near = {};
 
+    this._near.lsKey = NearConfig.contractName + ':v01:';
+    this._near.lsKeyRecentCards = this._near.lsKey + "recentCards";
+
     this.state = {
       connected: false,
       isNavCollapsed: true,
       account: null,
       requests: null,
+      recentCards: ls.get(this._near.lsKeyRecentCards) || [],
     };
 
     this._initNear().then(() => {
@@ -105,7 +111,6 @@ class App extends React.Component {
     }
   }
 
-
   async requestSignIn(e) {
     e.preventDefault();
     const appTitle = 'Berry Cards';
@@ -140,12 +145,27 @@ class App extends React.Component {
     }, c);
   }
 
+  addRecentCard(cardId) {
+    let recentCards = this.state.recentCards.slice(0);
+    const index = recentCards.indexOf(cardId);
+    if (index !== -1) {
+      recentCards.splice(index, 1);
+    }
+    recentCards.unshift(cardId);
+    recentCards = recentCards.slice(0, 10);
+    ls.set(this._near.lsKeyRecentCards, recentCards);
+    this.setState({
+      recentCards
+    })
+  }
+
   render() {
     const passProps = {
       _near: this._near,
       updateState: (s, c) => this.setState(s, c),
       popRequest: (c) => this.popRequest(c),
       addRequest: (r, c) => this.addRequest(r, c),
+      addRecentCard: (cardId) => this.addRecentCard(cardId),
       ...this.state
     };
     const header = !this.state.connected ? (
@@ -209,6 +229,9 @@ class App extends React.Component {
             </Route>
             <Route exact path={"/discover"}>
               <DiscoverPage {...passProps}/>
+            </Route>
+            <Route exact path={"/c/:cardId"}>
+              <CardPage {...passProps} />
             </Route>
           </Switch>
         </Router>

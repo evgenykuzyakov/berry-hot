@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import BrokenCard from "../images/broken-card.png"
+import BrokenCard from "../images/tomato.png"
+import LoadingCard from "../images/avocado.gif"
 
 const loadedCards = {};
 
@@ -12,7 +13,7 @@ function preloadCard(cardId) {
   a.src = `https://wayback.berryclub.io/img/${cardId}`;
 }
 
-function WaybackCard(props) {
+function CardImage(props) {
   const [loading, setLoading] = useState(true);
   const [badCard, setBadCard] = useState(false);
 
@@ -36,16 +37,12 @@ function WaybackCard(props) {
   }, [cardId, cardReady])
 
   return loading ? (
-    <div className="d-flex justify-content-center">
-      <div className="spinner-grow" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div>
+    <img className={props.className} src={LoadingCard} alt={`The card #${cardId} is loading`}/>
   ) : badCard ? (
-    <img className={props.className} src={BrokenCard} alt={"The card is broken"}/>
+    <img className={props.className} src={BrokenCard} alt={`The card #${cardId} is broken`}/>
   ) : (
     <img className={props.className} src={`https://wayback.berryclub.io/img/${cardId}`} alt={`Card #${cardId}`}/>
   );
 }
 
-export { preloadCard, WaybackCard };
+export { preloadCard, CardImage };

@@ -9,7 +9,7 @@ function BuyButton(props) {
   }
 
   return (
-    <button className="btn btn-success" onClick={(e) => buyCard(e)}>
+    <button className="btn btn-success" disabled={!props.signedIn} onClick={(e) => buyCard(e)}>
       Buy for {fromNear(props.price).toFixed(2)} NEAR
     </button>
   );

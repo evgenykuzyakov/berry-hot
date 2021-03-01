@@ -1,10 +1,9 @@
 import "./Discover.scss";
 import React, {useCallback, useEffect, useState} from 'react';
 import uuid from "react-uuid";
-import { WaybackCard } from "../components/WaybackCard";
-import {BuyButton} from "../components/BuyButton";
+import CardPreview from "../components/CardPreview";
 
-const FetchLimit = 100;
+const FetchLimit = 40;
 
 function DiscoverPage(props) {
   const [loading, setLoading] = useState(true);
@@ -31,15 +30,7 @@ function DiscoverPage(props) {
   const cards = feed.map(([rating, cardId]) => {
     const key = `${gkey}-${cardId}`;
     return (
-      <div className="card card-preview m-2" key={key}>
-        <WaybackCard className="card-img-top" cardId={cardId} cardReady={() => false}/>
-        <div className="card-body">
-          <h5 className="card-title">#{cardId}</h5>
-          <p className="card-text">
-            <BuyButton {...props} cardId={cardId} price={rating} />
-          </p>
-        </div>
-      </div>
+      <CardPreview {...props} key={key} cardId={cardId} rating={rating} />
     );
   })
 
