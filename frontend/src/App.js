@@ -9,6 +9,7 @@ import Logo from "./images/logo.png"
 import DiscoverPage from "./pages/Discover";
 import HomePage from "./pages/Home";
 import {HashRouter as Router, Link, Route, Switch} from 'react-router-dom'
+import {fromNear} from "./components/BuyButton";
 
 const IsMainnet = window.location.hostname === "berry.cards";
 const TestNearConfig = {
@@ -34,8 +35,6 @@ const MainNearConfig = {
 //   walletUrl: 'https://wallet.near.org',
 // };
 const NearConfig = IsMainnet ? MainNearConfig : TestNearConfig;
-
-const fromNear = (s) => parseFloat(s) / 1e24;
 
 const mapAccount = (a) => {
   return {

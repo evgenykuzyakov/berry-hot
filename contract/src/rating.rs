@@ -32,6 +32,6 @@ impl Contract {
         if old_rating != self.rating.insert(&card_id, &new_rating).unwrap() {
             env::panic(b"Internal rating mismatch");
         }
-        self.leaders.insert(&(old_rating, card_id), &());
+        self.leaders.insert(&(new_rating, card_id), &());
     }
 }

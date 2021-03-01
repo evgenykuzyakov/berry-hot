@@ -128,7 +128,7 @@ impl Contract {
             let mut account = self.get_account_or_create(&previous_info.owner_id);
             account.cards.remove(&card_id);
             log!(
-                "Transferring {} NEAR to the previous owner {} for card {}",
+                "Transferring {} NEAR to the previous owner @{} for card #{}",
                 owner_profit,
                 previous_info.owner_id,
                 card_id,
@@ -153,7 +153,7 @@ impl Contract {
         self.save_trade_data(&trade_data);
 
         log!(
-            "Transferring {} NEAR to the Art DAO {} for card {}",
+            "Transferring {} NEAR to the Art DAO @{} for card #{}",
             art_dao_profit,
             trade_data.art_dao_id,
             card_id,
@@ -164,8 +164,10 @@ impl Contract {
         self.set_rating(card_id, card_price, new_rating);
 
         let mut account = self.get_account_or_create(&purchase_info.owner_id);
+        account.cards.insert(&card_id);
         account.num_purchases += 1;
         account.purchase_volume += buy_price;
+        self.save_account(&purchase_info.owner_id, &account);
 
         purchase_info
     }
