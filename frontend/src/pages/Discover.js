@@ -31,11 +31,11 @@ function DiscoverPage(props) {
   const cards = feed.map(([rating, cardId]) => {
     const key = `${gkey}-${cardId}`;
     return (
-      <div class="card card-preview m-2" key={key}>
+      <div className="card card-preview m-2" key={key}>
         <WaybackCard className="card-img-top" cardId={cardId} cardReady={() => false}/>
-        <div class="card-body">
-          <h5 class="card-title">#{cardId}</h5>
-          <p class="card-text">
+        <div className="card-body">
+          <h5 className="card-title">#{cardId}</h5>
+          <p className="card-text">
             <BuyButton {...props} cardId={cardId} price={rating} />
           </p>
         </div>
