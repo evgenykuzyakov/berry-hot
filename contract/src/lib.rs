@@ -26,7 +26,7 @@ pub struct Contract {
 
     pub rating: UnorderedMap<CardId, u128>,
 
-    pub num_votes: u128,
+    pub num_votes: u64,
 }
 
 #[near_bindgen]

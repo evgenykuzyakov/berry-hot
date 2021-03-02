@@ -57,6 +57,7 @@ function HomePage(props) {
       <div className="container">
         {voteRequest ? (
           <div>
+            <h3>Vote</h3>
             <div className="row justify-content-md-center mb-3">
               <div className="col col-sm-6">
                 <div

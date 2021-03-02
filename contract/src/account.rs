@@ -75,6 +75,22 @@ impl Contract {
             })
             .collect()
     }
+
+    pub fn get_account_cards(
+        &self,
+        account_id: ValidAccountId,
+        from_index: u64,
+        limit: u64,
+    ) -> Vec<CardId> {
+        let account = self
+            .accounts
+            .get(account_id.as_ref())
+            .expect("Account not found");
+        let card_ids = account.cards.as_vector();
+        (from_index..std::cmp::min(from_index + limit, card_ids.len()))
+            .filter_map(|index| card_ids.get(index))
+            .collect()
+    }
 }
 
 impl Contract {

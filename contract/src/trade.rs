@@ -10,7 +10,9 @@ pub struct CardInfo {
     pub owner_id: AccountId,
     pub purchase_price: WrappedBalance,
     pub purchase_time: WrappedTimestamp,
+    pub num_trades: u64,
     pub volume: WrappedBalance,
+    pub art_dao_profit: WrappedBalance,
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
@@ -48,6 +50,8 @@ pub struct TradeDataView {
     pub app_owner_id: AccountId,
 
     pub art_dao_id: AccountId,
+
+    pub total_votes: u64,
 }
 
 impl From<&TradeData> for TradeDataView {
@@ -60,6 +64,7 @@ impl From<&TradeData> for TradeDataView {
             art_dao_profit: t.art_dao_profit.into(),
             app_owner_id: t.app_owner_id.clone(),
             art_dao_id: t.art_dao_id.clone(),
+            total_votes: 0,
         }
     }
 }
@@ -121,7 +126,9 @@ impl Contract {
             owner_id: new_owner_id,
             purchase_price: buy_price.into(),
             purchase_time: env::block_timestamp().into(),
+            num_trades: 1,
             volume: buy_price.into(),
+            art_dao_profit: art_dao_profit.into(),
         };
 
         if let Some(previous_info) = trade_data.cards.remove(&card_id) {
@@ -134,6 +141,8 @@ impl Contract {
                 card_id,
             );
             purchase_info.volume.0 += previous_info.volume.0;
+            purchase_info.art_dao_profit.0 += previous_info.art_dao_profit.0;
+            purchase_info.num_trades += previous_info.num_trades;
             account.num_sales += 1;
             account.sale_profit += owner_profit;
             self.save_account(&previous_info.owner_id, &account);
@@ -142,6 +151,7 @@ impl Contract {
             trade_data.num_unique_cards_bought += 1;
             // all profit goes to the art DAO.
             art_dao_profit += owner_profit;
+            purchase_info.art_dao_profit.0 += owner_profit;
         }
 
         trade_data.cards.insert(&card_id, &purchase_info);
@@ -173,7 +183,9 @@ impl Contract {
     }
 
     pub fn get_trade_data(&self) -> TradeDataView {
-        (&self.load_trade_data()).into()
+        let mut view: TradeDataView = (&self.load_trade_data()).into();
+        view.total_votes = self.num_votes;
+        view
     }
 
     pub fn get_card_info(&self, card_id: CardId) -> Option<CardInfo> {

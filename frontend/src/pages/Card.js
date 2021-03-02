@@ -7,7 +7,7 @@ function CardPage(props) {
 
   return (
     <div className="container">
-      <div className="row justify-content-md-center">
+      <div className="row">
         <div className="col col-12 col-lg-8 col-xl-6">
           <Card {...props} cardId={parseInt(cardId)} />
         </div>

@@ -2,6 +2,8 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {BuyButton, fromNear} from "./BuyButton";
 import {CardImage, preloadCard} from "./CardImage";
 import TimeAgo from "timeago-react";
+import {Link} from "react-router-dom";
+import PriceButton from "./PriceButton";
 
 const mapCardInfo = (c) => {
   return c ? {
@@ -9,11 +11,15 @@ const mapCardInfo = (c) => {
     purchasePrice: fromNear(c.purchase_price),
     purchaseTime: new Date(parseFloat(c.purchase_time) / 1e6),
     volume: fromNear(c.volume),
+    artDaoProfit: fromNear(c.art_dao_profit),
+    numTrades: c.num_trades,
   } : {
     ownerId: null,
     purchasePrice: 0,
     purchaseTime: null,
     volume: 0,
+    artDaoProfit: 0,
+    numTrades: 0,
   };
 }
 
@@ -50,9 +56,14 @@ function Card(props) {
         {cardInfo.ownerId ? (
           <div>
             <p>
-              Owned by @{cardInfo.ownerId}<br/>
-              Purchased <TimeAgo datetime={cardInfo.purchaseTime} /><br/>
-              Purchased for {cardInfo.purchasePrice.toFixed(2)} NEAR<br/>
+              Owned by {cardInfo.ownerId === props.signedAccountId ? "you" : (
+                <Link to={`/a/${cardInfo.ownerId}`}>@{cardInfo.ownerId}</Link>
+              )}<br/>
+              Purchased <TimeAgo datetime={cardInfo.purchaseTime} /> for {cardInfo.purchasePrice.toFixed(2)} NEAR<br/>
+            </p>
+            <p>
+              Total card volume {cardInfo.volume.toFixed(2)} NEAR<br/>
+              Art DAO got {cardInfo.artDaoProfit.toFixed(2)} NEAR<br/>
             </p>
           </div>
         ) : (
@@ -65,7 +76,11 @@ function Card(props) {
       </div>
       <div className="card-footer">
         <p className="card-text text-center">
-          <BuyButton {...props} cardId={cardId} price={cardInfo.rating} />
+          {cardInfo.ownerId === props.signedAccountId ? (
+            <PriceButton {...props} cardId={cardId} price={cardInfo.rating} />
+          ) : (
+            <BuyButton {...props} cardId={cardId} price={cardInfo.rating} ownerId={cardInfo.ownerId} />
+          )}
         </p>
       </div>
     </div>

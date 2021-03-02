@@ -12,13 +12,15 @@ import {HashRouter as Router, Link, Route, Switch} from 'react-router-dom'
 import {fromNear} from "./components/BuyButton";
 import ls from "local-storage";
 import CardPage from "./pages/Card";
+import AccountPage from "./pages/Account";
+import StatsPage from "./pages/Stats";
 
 const IsMainnet = window.location.hostname === "berry.cards";
 const TestNearConfig = {
   networkId: 'testnet',
   nodeUrl: 'https://rpc.testnet.near.org',
   archivalNodeUrl: 'https://rpc.testnet.internal.near.org',
-  contractName: 'dev-1614562672208-5026434',
+  contractName: 'dev-1614645337488-5371259',
   walletUrl: 'https://wallet.testnet.near.org',
 };
 
@@ -29,6 +31,8 @@ const MainNearConfig = {
   contractName: 'dev-1614562672208-5026434',
   walletUrl: 'https://wallet.testnet.near.org',
 };
+
+const FetchLimit = 50;
 
 // const MainNearConfig = {
 //   networkId: 'mainnet',
@@ -87,22 +91,48 @@ class App extends React.Component {
     this._near.accountId = this._near.walletConnection.getAccountId();
 
     this._near.account = this._near.walletConnection.account();
-    const block = await this._near.account.connection.provider.block({ finality: 'final' });
-    this._near.lastBlockHeight = block.header.height;
     this._near.contract = new nearAPI.Contract(this._near.account, NearConfig.contractName, {
-      viewMethods: ['get_account', 'get_accounts', 'get_num_cards', 'get_top', 'get_rating', 'get_trade_data', 'get_card_info'],
+      viewMethods: ['get_account', 'get_accounts', 'get_num_cards', 'get_top', 'get_rating', 'get_trade_data', 'get_card_info', 'get_account_cards'],
       changeMethods: ['register_account', 'vote', 'buy_card'],
     });
 
-    this._near.getAccount = async (accountId) => {
-      const a = await this._near.contract.get_account({account_id: accountId});
-      return a ? mapAccount(a) : null;
+    this._near.accounts = {};
+
+    this._near.getAccount = (accountId) => {
+      if (accountId in this._near.accounts) {
+        return this._near.accounts[accountId];
+      }
+      return this._near.accounts[accountId] = Promise.resolve((async () => {
+        const a = await this._near.contract.get_account({account_id: accountId});
+        const account = a ? mapAccount(a) : null;
+        if (account) {
+          account.fetchCards = () => {
+            if (account.cardFetching) {
+              return account.cardFetching;
+            }
+            const promises = [];
+            for (let i = 0; i < account.numCards; i += FetchLimit) {
+              promises.push(this._near.contract.get_account_cards({
+                account_id: accountId,
+                from_index: i,
+                limit: FetchLimit,
+              }));
+            }
+            return account.cardFetching = Promise.resolve((async () => {
+              return (await Promise.all(promises)).flat();
+            })());
+          };
+        }
+        return account;
+      })());
     };
 
     if (this._near.accountId) {
       let account = await this._near.getAccount(this._near.accountId);
       if (account === null) {
-        account = mapAccount(await this._near.contract.register_account());
+        await this._near.contract.register_account();
+        delete this._near.accounts[this._near.accountId];
+        account = await this._near.getAccount(this._near.accountId);
       }
       this.setState({
         account,
@@ -208,6 +238,15 @@ class App extends React.Component {
                       <Link className="nav-link" aria-current="page" to="/discover">Discover</Link>
                     </li>
                   )}
+                  {this.state.signedIn && (
+                    <li className="nav-item">
+                      <Link className="nav-link" aria-current="page"
+                            to={`/a/${this.state.signedAccountId}`}>Profile</Link>
+                    </li>
+                  )}
+                  <li className="nav-item">
+                    <Link className="nav-link" aria-current="page" to="/stats">Stats</Link>
+                  </li>
                 </ul>
                 <form className="d-flex">
                   {header}
@@ -229,6 +268,12 @@ class App extends React.Component {
             </Route>
             <Route exact path={"/discover"}>
               <DiscoverPage {...passProps}/>
+            </Route>
+            <Route exact path={"/stats"}>
+              <StatsPage {...passProps}/>
+            </Route>
+            <Route exact path={"/a/:accountId"}>
+              <AccountPage {...passProps} />
             </Route>
             <Route exact path={"/c/:cardId"}>
               <CardPage {...passProps} />
