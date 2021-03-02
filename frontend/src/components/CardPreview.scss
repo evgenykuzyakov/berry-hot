@@ -1,4 +1,6 @@
 .card-preview {
-  width: 200px;
-  display: inline-block;
+  @media (min-width: 460px) {
+    width: 200px;
+    display: inline-block;
+  }
 }
