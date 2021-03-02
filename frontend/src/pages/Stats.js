@@ -49,7 +49,7 @@ function StatsPage(props) {
                 <li>Total unique purchases: {stats.numUniqueCardsBought}</li>
                 <li>Total volume: {stats.nearVolume.toFixed(2)} NEAR</li>
                 <li>Total Art DAO profit: {stats.artDaoProfit.toFixed(2)} NEAR</li>
-                <li>Art DAO account ID: @{stats.artDaoId}</li>
+                <li>Art DAO account ID: <a href={`https://explorer.near.org/accounts/${stats.artDaoId}`}>@{stats.artDaoId}</a></li>
                 <li>Total App commission: {stats.appCommission.toFixed(2)} NEAR</li>
               </ul>
             </p>
