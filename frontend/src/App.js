@@ -215,7 +215,7 @@ class App extends React.Component {
             <div className="container-fluid">
               <Link className="navbar-brand" to="/" title="NEAR.fm">
                 <img src={Logo} alt="Berry Cards" className="d-inline-block align-middle" />
-                [TESTNET] Berry Cards
+                [BETA] Berry Cards
               </Link>
               <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
                       data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
