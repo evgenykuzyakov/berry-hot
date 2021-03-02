@@ -24,22 +24,16 @@ const TestNearConfig = {
   walletUrl: 'https://wallet.testnet.near.org',
 };
 
-const MainNearConfig = {
-  networkId: 'testnet',
-  nodeUrl: 'https://rpc.testnet.near.org',
-  archivalNodeUrl: 'https://rpc.testnet.internal.near.org',
-  contractName: 'dev-1614562672208-5026434',
-  walletUrl: 'https://wallet.testnet.near.org',
-};
-
 const FetchLimit = 50;
 
-// const MainNearConfig = {
-//   networkId: 'mainnet',
-//   nodeUrl: 'https://rpc.mainnet.near.org',
-//   contractName: 'berryclub.ek.near',
-//   walletUrl: 'https://wallet.near.org',
-// };
+const MainNearConfig = {
+  networkId: 'mainnet',
+  nodeUrl: 'https://rpc.mainnet.near.org',
+  archivalNodeUrl: 'https://rpc.mainnet.internal.near.org',
+  contractName: 'cards.berryclub.ek.near',
+  walletUrl: 'https://wallet.near.org',
+};
+
 const NearConfig = IsMainnet ? MainNearConfig : TestNearConfig;
 
 const mapAccount = (a) => {

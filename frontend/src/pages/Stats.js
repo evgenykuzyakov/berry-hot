@@ -1,9 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {useParams} from "react-router";
 import {fromNear} from "../components/BuyButton";
 
 function StatsPage(props) {
-  const { accountId } = useParams();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +17,7 @@ function StatsPage(props) {
       artDaoId: t.art_dao_id,
       totalVotes: t.total_votes,
     };
-  }, [props._near, accountId])
+  }, [props._near])
 
   useEffect(() => {
     if (props.connected) {

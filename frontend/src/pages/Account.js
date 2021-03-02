@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {useParams} from "react-router";
 import CardPreview from "../components/CardPreview";
 import uuid from "react-uuid";
-import {fromNear} from "../components/BuyButton";
 
 function AccountPage(props) {
   const { accountId } = useParams();
