@@ -176,7 +176,7 @@ class App extends React.Component {
       recentCards.splice(index, 1);
     }
     recentCards.unshift(cardId);
-    recentCards = recentCards.slice(0, 3);
+    recentCards = recentCards.slice(0, 5);
     ls.set(this._near.lsKeyRecentCards, recentCards);
     this.setState({
       recentCards

@@ -8,7 +8,11 @@ const SelectedLeft = "SelectedLeft";
 const SelectedRight = "SelectedRight";
 const Skipped = "Skipped";
 
-function HomePage(props) {
+const DefaultTGas = 100;
+const ExtraTGas = 40;
+const NumIter = 5;
+
+  function HomePage(props) {
   const [leftReady, setLeftReady] = useState(false);
   const [rightReady, setRightReady] = useState(false);
   const [votingPromise] = useState(Promise.resolve());
@@ -33,10 +37,23 @@ function HomePage(props) {
     }
     props.popRequest();
     votingPromise.then(async () => {
-      const newRequest = await props._near.contract.vote({
-        request: voteRequest,
-        response,
-      }, "100000000000000");
+      let tgas = DefaultTGas;
+      let newRequest = null
+      for (let iter = 0; iter < NumIter; ++iter) {
+        try {
+          newRequest = await props._near.contract.vote({
+            request: voteRequest,
+            response,
+          }, tgas.toString() + "000000000000");
+        } catch (e) {
+          const msg = e.toString();
+          if (msg.indexOf("prepaid gas") !== -1) {
+            tgas += ExtraTGas;
+            continue
+          }
+        }
+        break;
+      }
       if (response === SelectedLeft || response === SelectedRight) {
         const cardId = response === SelectedLeft ? voteRequest.left : voteRequest.right;
         props.addRecentCard(cardId);
