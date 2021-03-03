@@ -64,6 +64,10 @@ impl Contract {
         (&account).into()
     }
 
+    pub fn get_num_accounts(&self) -> u64 {
+        self.accounts.len()
+    }
+
     pub fn get_accounts(&self, from_index: u64, limit: u64) -> Vec<(AccountId, AccountView)> {
         let account_ids = self.accounts.keys_as_vector();
         let accounts = self.accounts.values_as_vector();
@@ -81,14 +85,18 @@ impl Contract {
         account_id: ValidAccountId,
         from_index: u64,
         limit: u64,
-    ) -> Vec<CardId> {
+    ) -> Vec<(CardId, Rating)> {
         let account = self
             .accounts
             .get(account_id.as_ref())
             .expect("Account not found");
         let card_ids = account.cards.as_vector();
         (from_index..std::cmp::min(from_index + limit, card_ids.len()))
-            .filter_map(|index| card_ids.get(index))
+            .filter_map(|index| {
+                card_ids
+                    .get(index)
+                    .map(|card_id| (card_id, self.rating.get(&card_id).unwrap_or(0).into()))
+            })
             .collect()
     }
 }

@@ -47,18 +47,25 @@ const NumIter = 5;
           }, tgas.toString() + "000000000000");
         } catch (e) {
           const msg = e.toString();
+          console.warn(msg);
           if (msg.indexOf("prepaid gas") !== -1) {
             tgas += ExtraTGas;
             continue
           }
+          if (msg.indexOf("does not have enough balance") !== -1) {
+            await props.refreshAllowance();
+            return;
+          }
         }
         break;
       }
-      if (response === SelectedLeft || response === SelectedRight) {
-        const cardId = response === SelectedLeft ? voteRequest.left : voteRequest.right;
-        props.addRecentCard(cardId);
+      if (newRequest) {
+        if (response === SelectedLeft || response === SelectedRight) {
+          const cardId = response === SelectedLeft ? voteRequest.left : voteRequest.right;
+          props.addRecentCard(cardId);
+        }
+        props.addRequest(newRequest);
       }
-      props.addRequest(newRequest);
     });
   }
 

@@ -67,7 +67,7 @@ function AccountPage(props) {
             <h3>Stats</h3>
             <p>
               <ul>
-                <li>Card owned: {account.numCards}</li>
+                <li>Num cards: {account.numCards}</li>
                 <li>Purchase volume: {account.purchaseVolume.toFixed(2)} NEAR</li>
                 <li>Num purchases: {account.numPurchases}</li>
                 <li>Sale profit: {account.saleProfit.toFixed(2)} NEAR</li>

@@ -136,7 +136,7 @@ class App extends React.Component {
   }
 
   async requestSignIn(e) {
-    e.preventDefault();
+    e && e.preventDefault();
     const appTitle = 'Berry Cards';
     await this._near.walletConnection.requestSignIn(
       NearConfig.contractName,
@@ -183,6 +183,12 @@ class App extends React.Component {
     })
   }
 
+  async refreshAllowance() {
+    alert("You're out of access key allowance. Need sign in again to refresh it");
+    await this.logOut();
+    await this.requestSignIn();
+  }
+
   render() {
     const passProps = {
       _near: this._near,
@@ -190,6 +196,7 @@ class App extends React.Component {
       popRequest: (c) => this.popRequest(c),
       addRequest: (r, c) => this.addRequest(r, c),
       addRecentCard: (cardId) => this.addRecentCard(cardId),
+      refreshAllowance: () => this.refreshAllowance(),
       ...this.state
     };
     const header = !this.state.connected ? (
