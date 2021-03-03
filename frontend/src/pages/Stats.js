@@ -6,8 +6,12 @@ function StatsPage(props) {
   const [loading, setLoading] = useState(true);
 
   const fetchStats = useCallback(async () => {
-    const t = await props._near.contract.get_trade_data();
+    const [t, numAccounts] = await Promise.all([
+      props._near.contract.get_trade_data(),
+      props._near.contract.get_num_accounts(),
+    ]);
     return {
+      numAccounts,
       numPurchases: t.num_purchases,
       numUniqueCardsBought: t.num_unique_cards_bought,
       nearVolume: fromNear(t.near_volume),
@@ -43,6 +47,7 @@ function StatsPage(props) {
           <div className="col col-12 col-lg-6 col-xl-6">
             <h3>Global Stats</h3>
             <ul>
+              <li>Num accounts: {stats.numAccounts}</li>
               <li>Total votes: {stats.totalVotes}</li>
               <li>Total purchases: {stats.numPurchases}</li>
               <li>Total unique purchases: {stats.numUniqueCardsBought}</li>

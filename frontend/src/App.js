@@ -85,7 +85,7 @@ class App extends React.Component {
 
     this._near.account = this._near.walletConnection.account();
     this._near.contract = new nearAPI.Contract(this._near.account, NearConfig.contractName, {
-      viewMethods: ['get_account', 'get_accounts', 'get_num_cards', 'get_top', 'get_rating', 'get_trade_data', 'get_card_info', 'get_account_cards'],
+      viewMethods: ['get_account', 'get_num_accounts', 'get_accounts', 'get_num_cards', 'get_top', 'get_rating', 'get_trade_data', 'get_card_info', 'get_account_cards'],
       changeMethods: ['register_account', 'vote', 'buy_card'],
     });
 

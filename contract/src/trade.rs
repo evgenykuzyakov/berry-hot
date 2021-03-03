@@ -191,4 +191,15 @@ impl Contract {
     pub fn get_card_info(&self, card_id: CardId) -> Option<CardInfo> {
         self.load_trade_data().cards.get(&card_id)
     }
+
+    pub fn update_art_dao_id(&mut self, new_art_dao_id: ValidAccountId) {
+        let mut trade_data = self.load_trade_data();
+        assert_eq!(
+            trade_data.app_owner_id,
+            env::predecessor_account_id(),
+            "Can only be updated by the owner"
+        );
+        trade_data.art_dao_id = new_art_dao_id.into();
+        self.save_trade_data(&trade_data);
+    }
 }
