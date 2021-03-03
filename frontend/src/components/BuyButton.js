@@ -29,16 +29,14 @@ function BuyButton(props) {
         Buy for {price.toFixed(2)} NEAR
       </button>
       <div className="text-muted text-start">
-        <p>
-          Price breakdown:
-          <ul>
-            {props.ownerId && (
-              <li>Owner @{props.ownerId} will get {ownerPrice.toFixed(2)} NEAR</li>
-            )}
-            <li>Art DAO will get {artDaoProfit.toFixed(2)} NEAR</li>
-            <li>1% App commission is {appCommission.toFixed(2)} NEAR</li>
-          </ul>
-        </p>
+        Price breakdown:
+        <ul>
+          {props.ownerId && (
+            <li>Owner @{props.ownerId} will get {ownerPrice.toFixed(2)} NEAR</li>
+          )}
+          <li>Art DAO will get {artDaoProfit.toFixed(2)} NEAR</li>
+          <li>1% App commission is {appCommission.toFixed(2)} NEAR</li>
+        </ul>
         <p>
           The new price will be {newPrice.toFixed(2)} NEAR
         </p>

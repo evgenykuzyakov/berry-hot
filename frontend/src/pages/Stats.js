@@ -42,17 +42,15 @@ function StatsPage(props) {
         ) : (
           <div className="col col-12 col-lg-6 col-xl-6">
             <h3>Global Stats</h3>
-            <p>
-              <ul>
-                <li>Total votes: {stats.totalVotes}</li>
-                <li>Total purchases: {stats.numPurchases}</li>
-                <li>Total unique purchases: {stats.numUniqueCardsBought}</li>
-                <li>Total volume: {stats.nearVolume.toFixed(2)} NEAR</li>
-                <li>Total Art DAO profit: {stats.artDaoProfit.toFixed(2)} NEAR</li>
-                <li>Art DAO account ID: <a href={`https://explorer.near.org/accounts/${stats.artDaoId}`}>@{stats.artDaoId}</a></li>
-                <li>Total App commission: {stats.appCommission.toFixed(2)} NEAR</li>
-              </ul>
-            </p>
+            <ul>
+              <li>Total votes: {stats.totalVotes}</li>
+              <li>Total purchases: {stats.numPurchases}</li>
+              <li>Total unique purchases: {stats.numUniqueCardsBought}</li>
+              <li>Total volume: {stats.nearVolume.toFixed(2)} NEAR</li>
+              <li>Total Art DAO profit: {stats.artDaoProfit.toFixed(2)} NEAR</li>
+              <li>Art DAO account ID: <a href={`https://explorer.near.org/accounts/${stats.artDaoId}`}>@{stats.artDaoId}</a></li>
+              <li>Total App commission: {stats.appCommission.toFixed(2)} NEAR</li>
+            </ul>
           </div>
         )}
       </div>

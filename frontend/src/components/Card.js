@@ -74,14 +74,12 @@ function Card(props) {
           </div>
         )}
       </div>
-      <div className="card-footer">
-        <p className="card-text text-center">
-          {cardInfo.ownerId === props.signedAccountId ? (
-            <PriceButton {...props} cardId={cardId} price={cardInfo.rating} />
-          ) : (
-            <BuyButton {...props} cardId={cardId} price={cardInfo.rating} ownerId={cardInfo.ownerId} />
-          )}
-        </p>
+      <div className="card-footer text-center">
+        {cardInfo.ownerId === props.signedAccountId ? (
+          <PriceButton {...props} cardId={cardId} price={cardInfo.rating} />
+        ) : (
+          <BuyButton {...props} cardId={cardId} price={cardInfo.rating} ownerId={cardInfo.ownerId} />
+        )}
       </div>
     </div>
   ) : (

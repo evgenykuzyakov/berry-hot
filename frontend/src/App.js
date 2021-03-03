@@ -20,12 +20,9 @@ const TestNearConfig = {
   networkId: 'testnet',
   nodeUrl: 'https://rpc.testnet.near.org',
   archivalNodeUrl: 'https://rpc.testnet.internal.near.org',
-  contractName: 'dev-1614645337488-5371259',
+  contractName: 'dev-1614796345972-8721304',
   walletUrl: 'https://wallet.testnet.near.org',
 };
-
-const FetchLimit = 50;
-
 const MainNearConfig = {
   networkId: 'mainnet',
   nodeUrl: 'https://rpc.mainnet.near.org',
@@ -35,6 +32,8 @@ const MainNearConfig = {
 };
 
 const NearConfig = IsMainnet ? MainNearConfig : TestNearConfig;
+
+const FetchLimit = 50;
 
 const mapAccount = (a) => {
   return {

@@ -22,16 +22,17 @@ function AccountPage(props) {
   useEffect(() => {
     if (props.connected) {
       fetchCards().then((cardIds) => {
+        cardIds.sort((a, b) => b[1] - a[1]);
         setCardsIds(cardIds);
         setLoading(false);
       })
     }
   }, [props.connected, fetchCards])
 
-  const cards = cardIds.map((cardId) => {
+  const cards = cardIds.map(([cardId, rating]) => {
     const key = `${gkey}-${cardId}`;
     return (
-      <CardPreview {...props} key={key} cardId={cardId} />
+      <CardPreview {...props} key={key} cardId={cardId} rating={rating} />
     );
   })
 
@@ -65,16 +66,14 @@ function AccountPage(props) {
         ) : (
           <div className="col col-12 col-lg-4 col-xl-4">
             <h3>Stats</h3>
-            <p>
-              <ul>
-                <li>Num cards: {account.numCards}</li>
-                <li>Purchase volume: {account.purchaseVolume.toFixed(2)} NEAR</li>
-                <li>Num purchases: {account.numPurchases}</li>
-                <li>Sale profit: {account.saleProfit.toFixed(2)} NEAR</li>
-                <li>Num sales: {account.numSales}</li>
-                <li>Num votes: {account.numVotes}</li>
-              </ul>
-            </p>
+            <ul>
+              <li>Num cards: {account.numCards}</li>
+              <li>Purchase volume: {account.purchaseVolume.toFixed(2)} NEAR</li>
+              <li>Num purchases: {account.numPurchases}</li>
+              <li>Sale profit: {account.saleProfit.toFixed(2)} NEAR</li>
+              <li>Num sales: {account.numSales}</li>
+              <li>Num votes: {account.numVotes}</li>
+            </ul>
           </div>
         )}
       </div>
