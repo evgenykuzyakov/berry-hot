@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import uuid from "react-uuid";
 import CardPreview from "../components/CardPreview";
 
-const FetchLimit = 40;
+const FetchLimit = 30;
 
 function DiscoverPage(props) {
   const [loading, setLoading] = useState(true);
