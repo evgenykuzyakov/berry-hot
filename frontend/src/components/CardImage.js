@@ -20,7 +20,7 @@ function preloadCard(cardId) {
       loadedCards[cardId] = false;
       resolve()
     }
-    loadedImages[cardId].src = `https://wayback.berryclub.io/img/${cardId}`;
+    loadedImages[cardId].src = `https://i.berry.cards/${cardId}`;
   });
 
 }
