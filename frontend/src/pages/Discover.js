@@ -3,29 +3,43 @@ import React, {useCallback, useEffect, useState} from 'react';
 import uuid from "react-uuid";
 import CardPreview from "../components/CardPreview";
 
-const FetchLimit = 30;
+const FetchLimit = 25;
 
 function DiscoverPage(props) {
   const [loading, setLoading] = useState(true);
   const [feed, setFeed] = useState([]);
+  const [limit] = useState(100);
   const [gkey] = useState(uuid())
 
-  const fetchTop = useCallback(async () => {
-    // const numCards = await props._near.contract.get_num_cards();
-    return await props._near.contract.get_top({
-      limit: FetchLimit,
-    })
-  }, [props._near])
+  const fetchMore = useCallback(async () => {
+    if (feed.length >= limit) {
+      return feed;
+    }
+    const f = [...feed];
+    while (f.length < limit) {
+      const lastKey = f.length > 0 ? f[f.length - 1] : null
+      const fetched = await props._near.contract.get_top({
+        from_key: lastKey,
+        limit: FetchLimit,
+      });
+      f.push(...fetched);
+      if (fetched.length === 0) {
+        break;
+      }
+    }
+    console.log(f);
+    return f;
+  }, [props._near, feed, limit])
 
   useEffect(() => {
     if (props.connected) {
       setLoading(true);
-      fetchTop().then((feed) => {
+      fetchMore().then((feed) => {
         setFeed(feed);
         setLoading(false);
-      })
+      });
     }
-  }, [props.connected, fetchTop])
+  }, [props.connected, fetchMore])
 
   const cards = feed.map(([rating, cardId]) => {
     const key = `${gkey}-${cardId}`;
