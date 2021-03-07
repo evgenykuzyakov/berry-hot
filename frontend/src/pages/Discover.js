@@ -1,45 +1,35 @@
 import "./Discover.scss";
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import uuid from "react-uuid";
 import CardPreview from "../components/CardPreview";
+import InfiniteScroll from 'react-infinite-scroller';
 
 const FetchLimit = 25;
 
 function DiscoverPage(props) {
-  const [loading, setLoading] = useState(true);
   const [feed, setFeed] = useState([]);
-  const [limit] = useState(100);
+  const [hasMore, setHasMore] = useState(false);
   const [gkey] = useState(uuid())
 
-  const fetchMore = useCallback(async () => {
-    if (feed.length >= limit) {
-      return feed;
-    }
+  const fetchMore = async () => {
     const f = [...feed];
-    while (f.length < limit) {
-      const lastKey = f.length > 0 ? f[f.length - 1] : null
-      const fetched = await props._near.contract.get_top({
-        from_key: lastKey,
-        limit: FetchLimit,
-      });
-      f.push(...fetched);
-      if (fetched.length === 0) {
-        break;
-      }
+    const lastKey = f.length > 0 ? f[f.length - 1] : null
+    const fetched = await props._near.contract.get_top({
+      from_key: lastKey,
+      limit: FetchLimit,
+    });
+    f.push(...fetched);
+    if (fetched.length === 0) {
+      setHasMore(false);
     }
-    console.log(f);
-    return f;
-  }, [props._near, feed, limit])
+    setFeed(f);
+  };
 
   useEffect(() => {
     if (props.connected) {
-      setLoading(true);
-      fetchMore().then((feed) => {
-        setFeed(feed);
-        setLoading(false);
-      });
+      setHasMore(true);
     }
-  }, [props.connected, fetchMore])
+  }, [props.connected])
 
   const cards = feed.map(([rating, cardId]) => {
     const key = `${gkey}-${cardId}`;
@@ -48,23 +38,28 @@ function DiscoverPage(props) {
     );
   })
 
+  const loader = (
+    <div className="d-flex justify-content-center" key={`${gkey}-loader`}>
+      <div className="spinner-grow" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  );
+
   return (
     <div>
       <div className="container">
         <div className="row justify-content-md-center">
-          {loading ? (
-            <div className="col col-12 col-lg-8 col-xl-6">
-              <div className="d-flex justify-content-center">
-                <div className="spinner-grow" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="col">
+          <div className="col">
+            <InfiniteScroll
+              pageStart={0}
+              loadMore={fetchMore}
+              hasMore={hasMore}
+              loader={loader}
+            >
               {cards}
-            </div>
-          )}
+            </InfiniteScroll>
+          </div>
         </div>
       </div>
     </div>
