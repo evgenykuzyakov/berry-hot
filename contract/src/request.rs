@@ -32,7 +32,25 @@ impl Contract {
         }
         account.requests.remove(0);
         account.requests.extend(self.generate_requests(1));
-        self.resolve_request(&request, response);
+
+        if let Some(card_id) = self.resolve_request(&request, response) {
+            let purchase_info = CardInfo {
+                owner_id: account_id.clone(),
+                purchase_price: 0.into(),
+                purchase_time: env::block_timestamp().into(),
+                num_trades: 0,
+                volume: 0.into(),
+                art_dao_profit: 0.into(),
+            };
+
+            let mut trade_data = self.load_trade_data();
+            assert!(trade_data.cards.insert(&card_id, &purchase_info).is_none());
+            self.save_trade_data(&trade_data);
+
+            account.cards.insert(&card_id);
+
+            self.insert_recent_buy(card_id);
+        }
 
         account.num_votes += 1;
 
@@ -75,15 +93,17 @@ impl Contract {
         }
     }
 
-    fn resolve_request(&mut self, old_request: &ReviewRequest, response: ReviewResponse) {
+    fn resolve_request(
+        &mut self,
+        old_request: &ReviewRequest,
+        response: ReviewResponse,
+    ) -> Option<CardId> {
         match response {
-            ReviewResponse::SelectedLeft => {
-                self.update_rating(old_request.left, old_request.right);
-            }
+            ReviewResponse::SelectedLeft => self.update_rating(old_request.left, old_request.right),
             ReviewResponse::SelectedRight => {
-                self.update_rating(old_request.right, old_request.left);
+                self.update_rating(old_request.right, old_request.left)
             }
-            ReviewResponse::Skipped => (),
+            ReviewResponse::Skipped => None,
         }
     }
 }

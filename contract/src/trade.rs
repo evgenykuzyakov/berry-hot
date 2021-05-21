@@ -3,6 +3,7 @@ use near_sdk::json_types::{WrappedBalance, WrappedTimestamp};
 use near_sdk::{env, log, Balance, Promise};
 
 const TRADE_DATA_KEY: &[u8] = b"d";
+pub(crate) const RECENT_BUY_LIMIT: u64 = 1000;
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
@@ -106,7 +107,8 @@ impl Contract {
     #[payable]
     pub fn buy_card(&mut self, card_id: CardId) -> CardInfo {
         let new_owner_id = env::predecessor_account_id();
-        let card_price = self.rating.get(&card_id).expect("The card is not active");
+        let card_rating = self.rating.get(&card_id).expect("The card is not active");
+        let card_price = (card_rating as f64 / Self::multiplier()) as u128;
         let buy_price = env::attached_deposit();
         if buy_price < card_price {
             env::panic(
@@ -117,7 +119,7 @@ impl Contract {
                 .as_bytes(),
             );
         }
-        let mut art_dao_profit = buy_price / 10;
+        let mut art_dao_profit = buy_price / 100;
         let app_owner_profit = buy_price / 100;
         let owner_profit = buy_price - art_dao_profit - app_owner_profit;
         let mut trade_data = self.load_trade_data();
@@ -170,14 +172,16 @@ impl Contract {
         );
         Promise::new(trade_data.art_dao_id).transfer(art_dao_profit);
 
-        let new_rating = buy_price * 6 / 5;
-        self.set_rating(card_id, card_price, new_rating);
+        let new_rating = ((buy_price as f64 * Self::multiplier()) * 1.2) as u128;
+        self.set_rating(card_id, card_rating, new_rating);
 
         let mut account = self.get_account_or_create(&purchase_info.owner_id);
         account.cards.insert(&card_id);
         account.num_purchases += 1;
         account.purchase_volume += buy_price;
         self.save_account(&purchase_info.owner_id, &account);
+
+        self.insert_recent_buy(card_id);
 
         purchase_info
     }
@@ -201,5 +205,16 @@ impl Contract {
         );
         trade_data.art_dao_id = new_art_dao_id.into();
         self.save_trade_data(&trade_data);
+    }
+}
+
+impl Contract {
+    pub(crate) fn insert_recent_buy(&mut self, card_id: CardId) {
+        self.recent_buys.insert(&self.recent_buys_end, &card_id);
+        if self.recent_buys_end >= RECENT_BUY_LIMIT {
+            self.recent_buys
+                .remove(&(self.recent_buys_end - RECENT_BUY_LIMIT));
+        }
+        self.recent_buys_end += 1;
     }
 }

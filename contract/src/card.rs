@@ -28,4 +28,23 @@ impl Contract {
     pub fn get_rating(&self, card_id: CardId) -> Rating {
         self.rating.get(&card_id).unwrap_or_default().into()
     }
+
+    pub fn get_recent_cards(
+        &self,
+        from_index: Option<u64>,
+        limit: Option<u64>,
+    ) -> Vec<(CardId, Rating)> {
+        if self.recent_buys_end == 0 {
+            return Vec::new();
+        }
+        let from_index = from_index.unwrap_or(self.recent_buys_end - 1);
+        let limit = std::cmp::min(from_index + 1, limit.unwrap_or(RECENT_BUY_LIMIT));
+        (0..std::cmp::min(limit, self.recent_buys_end))
+            .filter_map(|index| {
+                self.recent_buys
+                    .get(&(from_index - index))
+                    .map(|card_id| (card_id, self.rating.get(&card_id).unwrap_or(0).into()))
+            })
+            .collect()
+    }
 }
