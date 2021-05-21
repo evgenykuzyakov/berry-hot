@@ -11,11 +11,11 @@ const Skipped = "Skipped";
 const DefaultTGas = 100;
 const ExtraTGas = 50;
 const NumIter = 5;
+let votingPromise = Promise.resolve();
 
-  function HomePage(props) {
+function HomePage(props) {
   const [leftReady, setLeftReady] = useState(false);
   const [rightReady, setRightReady] = useState(false);
-  const [votingPromise] = useState(Promise.resolve());
   const [gkey] = useState(uuid())
 
   const voteRequest = props.requests ? props.requests[0] : null;
@@ -36,7 +36,7 @@ const NumIter = 5;
       return;
     }
     props.popRequest();
-    votingPromise.then(async () => {
+    const nextPromise = async () => {
       let tgas = DefaultTGas;
       let newRequest = null
       for (let iter = 0; iter < NumIter; ++iter) {
@@ -66,7 +66,10 @@ const NumIter = 5;
         }
         props.addRequest(newRequest);
       }
-    });
+    };
+
+    votingPromise = votingPromise.then(nextPromise);
+    // setVotingPromise(nextPromise);
   }
 
   const cards = props.recentCards.map((cardId) => {
