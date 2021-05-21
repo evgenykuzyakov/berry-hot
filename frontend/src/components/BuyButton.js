@@ -1,16 +1,19 @@
 import React from 'react';
+import {multiplier} from "./common";
+import Big from "big.js";
 
 const fromNear = (s) => parseFloat(s) / 1e24;
 
 function BuyButton(props) {
+  const price = fromNear(props.price / multiplier() * 1.0001);
+
   async function buyCard(e) {
     e.preventDefault();
-    await props._near.contract.buy_card({card_id: props.cardId}, "200000000000000", props.price);
+    await props._near.contract.buy_card({card_id: props.cardId}, "200000000000000", Big(props.price / multiplier() * 1.0001).toFixed(0));
   }
 
-  const price = fromNear(props.price);
   const appCommission = price / 100;
-  let artDaoProfit = price / 10;
+  let artDaoProfit = price / 100;
   let ownerPrice = price - appCommission - artDaoProfit;
   if (!props.ownerId) {
     artDaoProfit += ownerPrice;

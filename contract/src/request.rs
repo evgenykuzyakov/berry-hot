@@ -17,7 +17,6 @@ pub enum ReviewResponse {
 }
 
 const FIRST_BERRY_BLOCK: u64 = 21793900;
-// const MAINNET_LAST_BLOCK: u64 = 30955009;
 const MIN_CARDS_FOR_FIGHTS: u64 = 10;
 
 pub const REQUEST_QUEUE_LEN: usize = 3;
@@ -87,9 +86,11 @@ impl Contract {
                 .get((r % (self.rating.len() as u128)) as u64)
                 .unwrap()
         } else {
-            let num_blocks = env::block_index() - FIRST_BERRY_BLOCK;
-            // let num_blocks = MAINNET_LAST_BLOCK - FIRST_BERRY_BLOCK;
-            FIRST_BERRY_BLOCK + (r % (num_blocks as u128)) as u64
+            let num_blocks = (env::block_index() - FIRST_BERRY_BLOCK) as u128;
+            // let num_blocks = (37950489 - FIRST_BERRY_BLOCK) as u128;
+            let sqr = r % (num_blocks * num_blocks);
+            let sq = (sqr as f64).sqrt() as u64;
+            FIRST_BERRY_BLOCK + sq
         }
     }
 

@@ -9,7 +9,7 @@ const SelectedRight = "SelectedRight";
 const Skipped = "Skipped";
 
 const DefaultTGas = 100;
-const ExtraTGas = 40;
+const ExtraTGas = 50;
 const NumIter = 5;
 
   function HomePage(props) {

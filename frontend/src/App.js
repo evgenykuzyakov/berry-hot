@@ -14,13 +14,14 @@ import ls from "local-storage";
 import CardPage from "./pages/Card";
 import AccountPage from "./pages/Account";
 import StatsPage from "./pages/Stats";
+import RecentPage from "./pages/Recent";
 
 const IsMainnet = window.location.hostname === "berry.cards";
 const TestNearConfig = {
   networkId: 'testnet',
   nodeUrl: 'https://rpc.testnet.near.org',
   archivalNodeUrl: 'https://rpc.testnet.internal.near.org',
-  contractName: 'dev-1614796345972-8721304',
+  contractName: 'dev-1621626423763-23601795253740',
   walletUrl: 'https://wallet.testnet.near.org',
 };
 const MainNearConfig = {
@@ -85,7 +86,7 @@ class App extends React.Component {
 
     this._near.account = this._near.walletConnection.account();
     this._near.contract = new nearAPI.Contract(this._near.account, NearConfig.contractName, {
-      viewMethods: ['get_account', 'get_num_accounts', 'get_accounts', 'get_num_cards', 'get_top', 'get_rating', 'get_trade_data', 'get_card_info', 'get_account_cards'],
+      viewMethods: ['get_account', 'get_num_accounts', 'get_accounts', 'get_num_cards', 'get_top', 'get_rating', 'get_trade_data', 'get_card_info', 'get_account_cards', 'get_recent_cards'],
       changeMethods: ['register_account', 'vote', 'buy_card'],
     });
 
@@ -221,7 +222,7 @@ class App extends React.Component {
             <div className="container-fluid">
               <Link className="navbar-brand" to="/" title="NEAR.fm">
                 <img src={Logo} alt="Berry Cards" className="d-inline-block align-middle" />
-                [BETA] Berry Cards
+                Berry Cards
               </Link>
               <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
                       data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -233,9 +234,12 @@ class App extends React.Component {
                   <li className="nav-item">
                     <Link className="nav-link" aria-current="page" to="/">Home</Link>
                   </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" aria-current="page" to="/recent">Recent</Link>
+                  </li>
                   {this.state.signedIn && (
                     <li className="nav-item">
-                      <Link className="nav-link" aria-current="page" to="/discover">Discover</Link>
+                      <Link className="nav-link" aria-current="page" to="/top">Top</Link>
                     </li>
                   )}
                   {this.state.signedIn && (
@@ -266,7 +270,10 @@ class App extends React.Component {
                 <DiscoverPage {...passProps}/>
               )}
             </Route>
-            <Route exact path={"/discover"}>
+            <Route exact path={"/recent"}>
+              <RecentPage {...passProps}/>
+            </Route>
+            <Route exact path={"/top"}>
               <DiscoverPage {...passProps}/>
             </Route>
             <Route exact path={"/stats"}>
